@@ -1,0 +1,241 @@
+R Code
+
+
+Get Working Directory and Load Dataset to R 
+
+>  setwd("/Users/oceanandmountains/ankurtest")
+> getwd()
+> dataset = read.csv('policedata.csv')
+
+Command Used in Data Analysing 
+
+> install.packages("DataExplorer")
+> library(DataExplorer)
+> DataExplorer::create_report(dataset)
+> AttrTypes <- split(names(dataset),sapply(dataset, function(x) paste(class(x), collapse=" ")))
+> numericAttr <- unlist(lapply(dataset, is.numeric))  
+
+
+Dealing with the Missing Data ………………………………………………………
+
+> sapply(dataset, function(x) sum(is.na(x)))
+> missingAttr = colnames(dataset)[colSums(is.na(dataset)) > 0]
+	
+Removal of Unnecessary Attributes…………………………………………………..
+
+> sum(is.na(dataset))/prod(dim(dataset))
+> dataset$id <- NULL
+> dataset$name <- NULL
+> dataset$date <- NULL
+> dataset$city <- NULL
+> dataset$body_camera <- NULL
+
+
+Conversion of Age into Numeric Value 
+
+> dataset$age <- as.numeric(as.character(dataset$age))
+> for(i in 1:ncol(dataset)){
++     dataset[is.na(dataset[,i]), i] <-mean(dataset[,i],na.rm = TRUE)
++ }
+> dataset$age = as.numeric(format(round(dataset$age, 0)))
+
+
+
+Covert Categorical Data Into Numeric Data Now 
+
+> dataset$manner_of_death <- as.numeric(factor(dataset$manner_of_death))
+> dataset$armed <- as.numeric(factor(dataset$armed))
+> dataset$gender <- as.numeric(factor(dataset$gender))
+> dataset$race <- as.numeric(factor(dataset$race))
+> dataset$state <- as.numeric(factor(dataset$state))
+> dataset$threat_level <- as.numeric(factor(dataset$threat_level))
+> dataset$flee <- as.numeric(factor(dataset$flee))
+
+
+Code used in creating boxplot 
+
+> boxplot(dataset))
+
+
+
+Code used in correlation Analysis and corrgram 
+
+> library(corrplot)
+> x <- cor(dataset)
+> corrplot(x, type="upper", order="hclust")
+> library(corrgram)
+> corrgram(dataset, order=TRUE, lower.panel=panel.shade,
++          upper.panel=panel.pie, text.panel=panel.txt,
++          main="Correlation Analysis")
+
+Code used in Correlation Matrix 
+
+> correlationMatrix <- cor(dataset)
+> 
+> print(correlationMatrix)
+
+Code Used in importance on armed attribute 
+
+> RFdata <- randomForest(dataset$armed ~ ., data=dataset, ntree=1000,
++                        keep.forest=FALSE, importance=TRUE)
+> importance(RFdata)
+> importance(RFdata, type=1)
+
+Code used in Random Forest 
+
+> varImpPlot(rf)
+> result <- rfcv(dataset, dataset$armed, cv.fold=3)
+> with(result, plot(n.var, error.cv, log="x", type="o", lwd=2))
+> randFor = randomForest::randomForest(dataset$armed~. , data = dataset)
+> randFor
+> plot(randFor)
+
+
+
+
+Code Used in Principal Component Analysis
+
+
+
+
+
+
+
+>Data_pca <- prcomp(data, center = TRUE, scale. = TRUE)
+
+
+
+> summary(Data_pca)
+> str(Data_pca)
+> summary(Data_pca)
+> str(Data_pca)
+> plot(Data_pca)
+
+
+Code Used in Bourta Algorithm 
+
+> (i in colnames(dataset)){
+    boruta <- Boruta(datanumall[[i]]~., data = datanumall, doTrace = 2)
+    print(boruta)
+    }
+Code used in DIMENSIONALITY REDUCTION
+> reduce = dataset
+> pcadata <- prcomp(reduce, scale.=T)
+> class(data_pca)
+> class(pcadata)
+> plot(pcadata)
+> newPCA <- prcomp(scale(reduce[,-1]))
+> class(newPCA)
+> plot(newPCA)
+> summary(newPCA)
+> reduce_pca <- prcomp(reduce, center = TRUE, scale = TRUE)
+> summary(reduce_pca)
+> biplot(reduce_pca)
+
+Code used in Elbow Method
+
+> biplot(reduce_pca)
+> set.seed(6)
+> v = vector()
+> for (i in 1:10) v[i] = sum(kmeans(dataset, i)$withinss)
+> plot(1:10,
++      v,
++      type = 'b',
++      main = paste('The Elbow Method'),
++      xlab = 'Number of clusters',
++      ylab = 'WCSS')
+
+Code Used in K Means Clustering 
+
+> set.seed(123)
+> kmeans = kmeans(x = dataset, centers = 2)
+> y_kmeans = kmeans$cluster
+> library(cluster)
+> clusplot(dataset,
++          y_kmeans,
++          lines = 0,
++          shade = TRUE,
++          color = TRUE,
++          labels = 2,
++          plotchar = FALSE,
++          span = TRUE,
++          main = paste('Police Killings'),
++          xlab = 'x',
++          ylab = 'y')
+
+Code used in HIERARCHICAL CLUSTERING – WARDS METHOD
+
+> dist_mat <- dist(dataset, method = 'euclidean')
+> hclust_avg <- hclust(dist_mat, method = 'ward.D2')
+> plot(hclust_avg)
+> plot(hclust_avg)
+> rect.hclust(hclust_avg , k = 2, border = 2:6)
+> abline(h = 2, col = 'red')
+> suppressPackageStartupMessages(library(dplyr))
+> datacluster <- mutate(dataset, cluster = cut_avg)
+> plot(hclust_avg)
+> cut_avg <- cutree(hclust_avg, k = 2)
+> plot(hclust_avg)
+> rect.hclust(hclust_avg , k = 2, border = 2:6)
+> abline(h = 2, col = 'red')
+> suppressPackageStartupMessages(library(dplyr))
+> clusterdata <- mutate(dataset, cluster = cut_avg)
+> count(clusterdata,cluster)
+
+
+Code Used in Visualization
+
+> suppressPackageStartupMessages(library(ggplot2))
+> ggplot(clusterdata, aes(x=clusterdata$armed, y = clusterdata$age, color = factor(cluster))) + geom_point()
+
+
+Code Used in Comparing K Means Clustering and the Hierarchical Clustering 
+
+> library("NbClust")
+> NbClust(dataset, NULL, distance = "euclidean", min.nc = 2, max.nc = 10,
++         method = "kmeans", index = "all", alphaBeale = 0.1)
+> NbClust(dataset, NULL, distance = "euclidean", min.nc = 2, max.nc = 10,
++         method = "ward.D2", index = "all", alphaBeale = 0.1)
+
+
+
+
+Code Used in Classification 
+
+> smp_size <- floor(0.75 * nrow(clusterdata))
+> set.seed(123)
+> traindata <- sample(seq_len(nrow(clusterdata)), size = smp_size) 
+> train <- clusterdata[traindata, ]
+> test <- clusterdata[-traindata, ]
+> dim(train)
+
+Code Used in Artificial Neural Network 
+
+> samplesize = 0.60 * nrow(clusterdata) 
+> set.seed(80)
+> index = sample( seq_len ( nrow ( clusterdata ) ), size = samplesize )
+> datatrain = clusterdata[ index, ] 
+> datatest = clusterdata[ -index, ]
+> max = apply(clusterdata , 2 , max)
+> min = apply(clusterdata, 2 , min) 
+> scaled = as.data.frame(scale(clusterdata, center = min, scale = max - min)) 
+> install.packages("neuralnet")
+> library(neuralnet)
+> trainNN = scaled[index , ]
+> testNN = scaled[-index , ]
+> set.seed(2)
+> NN = neuralnet(trainNN$cluster ~., trainNN, hidden = 3 , linear.output = T )
+> plot(NN)
+> predict_testNN = compute(NN, testNN[,c(1:10)])
+> predict_testNN = compute(NN, testNN[,c(1:8)])
+> predict_testNN = (predict_testNN$net.result * (max(clusterdata$cluster) - min(clusterdata$cluster))) + min(clusterdata$cluster)
+> plot(datatest$cluster, predict_testNN, col='blue', pch=16, ylab = "predicted rating NN", xlab = "real rating")
+> abline(0,1) 
+> RMSE.NN = (sum((datatest$cluster - predict_testNN)^2) / nrow(datatest)) ^ 0.5
+> RMSE.NN
+[1] 0.0509052
+> plot(NN)
+
+
+
+
